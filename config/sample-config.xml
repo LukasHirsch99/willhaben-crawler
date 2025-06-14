@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<config>
+  <!-- Scheduling cycleTime=seconds -->
+  <Scheduling cycleTime="300" />
+
+  <Emails>
+    <Email
+      name="test"
+      server="smtp.gmail.com"
+      port="587"
+      user="xxx"
+      pw="xxx"
+      from="xxx"
+      to="xxx"
+      subject="Willhaben Crawler"
+      />
+  </Emails>
+
+  <Agents CombineResults="True">
+    <Agent
+      name="Wohnungen Wien"
+      url="https://www.willhaben.at/iad/immobilien/mietwohnungen/mietwohnung-angebote?areaId=117223&amp;areaId=117224&amp;areaId=117225&amp;areaId=117226&amp;areaId=117227&amp;areaId=117228&amp;areaId=117229&amp;areaId=117230&amp;areaId=117231&amp;areaId=117233&amp;areaId=117234&amp;areaId=117235&amp;areaId=117236&amp;areaId=117237&amp;areaId=117238&amp;areaId=117239&amp;areaId=117240&amp;areaId=117241&amp;areaId=117242&amp;NO_OF_ROOMS_BUCKET=4X4&amp;NO_OF_ROOMS_BUCKET=2X2&amp;NO_OF_ROOMS_BUCKET=3X3&amp;sort=1&amp;rows=30&amp;isNavigation=true&amp;sfId=9ae79277-2ef6-475e-9fbe-968c808ce73d&amp;PROPERTY_TYPE=110&amp;PROPERTY_TYPE=105&amp;PROPERTY_TYPE=101&amp;PROPERTY_TYPE=3&amp;page=1&amp;PRICE_FROM=0&amp;ESTATE_SIZE%2FLIVING_AREA_FROM=50&amp;PRICE_TO=950"
+      result="Table1"
+      mailTo="test"
+      >
+
+      <Search
+        name="Select-Apropriate"
+        saveSearchSoup="True"
+        >
+        <GetMaxId
+          name="timeStamp" tagName="div" attrs="{'class':'bottom-content'}" valueSrc="text" valueType="datetime" valueFormat="%d.%m.%Y %H:%M"
+          excludeIfLower="True"
+          />
+
+        <Filter prop="title" oper="not in" compValue="Gemeindewohnung,Vormerkschein,Genossenschaft" />
+        <Filter prop="price" oper="&lt;" compValue="950" valueType="int" />
+      </Search>
+    </Agent>
+  </Agents>
+
+  <ResultTable name="Table1" format="html" fileName="resTab1.html">
+
+    <ColumnVal name="Image" prop="thumbnail" isImage="True" altText="Image" >
+      <ImageLink />
+    </ColumnVal>
+    <ColumnVal name="Title" prop="title"/>
+    <ColumnVal name="Text" prop="body"/>
+    <ColumnVal name="Address" prop="address"/>
+    <ColumnVal name="Time" prop="published"/>
+    <ColumnVal name="Price" prop="price"/>
+    <ColumnVal name="Ref" prop="url" isLink="True" linkText="Link" />
+  </ResultTable>
+</config>
