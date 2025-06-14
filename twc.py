@@ -408,10 +408,13 @@ class WebCrawler:
             for row in cvtRes:
                 resList.append(row)
 
-        if mailCfg is not None and len(resList) > 0 and combineResults:
-            mail = myemail.Email(mailCfg)
-            mail.Send(resList)
-            print(f"sent mail to: {mailCfg["to"]}")
+            if "mailTo" in agent.cfg.attrs:
+                mailCfg = cfg.find("Email", {"name": agent.cfg["mailTo"]})
+
+                if mailCfg is not None and len(resList) > 0:
+                    mail = myemail.Email(mailCfg)
+                    mail.Send(resList)
+                    print(f"sent mail to: {mailCfg['to']}")
 
 
 def CvtResult(cfg, agent: Agent, res: list[Item]) -> str | list[str]:
@@ -452,8 +455,11 @@ def CvtResult(cfg, agent: Agent, res: list[Item]) -> str | list[str]:
                 altText = c.get("altText", "Picture")
                 imageLink = c.find("ImageLink")
                 if imageLink is not None:
+                    href = item.url
+
+                if href is not None:
                     text = "<a href='{}'><img src='{}' alt='{}'/></a>".format(
-                        item.url, propValue, altText
+                        href, propValue, altText
                     )
                 else:
                     text = "<img src='{}' alt='{}'/>".format(propValue, altText)
