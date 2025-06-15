@@ -61,4 +61,4 @@ def parseItems(js) -> list[Item]:
             )
         )
 
-    return items
+    return sorted(items, key=lambda i: i.published, reverse=True)
