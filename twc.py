@@ -305,7 +305,6 @@ class Agent:
         print(
             (str)(datetime.now()) + " Agent " + self.name + " res len=" + str(len(res))
         )
-        exit()
         return res
 
 
