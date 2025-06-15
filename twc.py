@@ -1,5 +1,4 @@
 from enum import Enum
-from dataclasses import dataclass
 import json
 import sys
 import os
@@ -36,14 +35,14 @@ class Operator(Enum):
     LT = "<"
     LTE = "<="
 
+LAST_URL_FILE = "lastUrl.txt"
 
 try:
-    ltsFile = open("lastTimeStamp.txt", "r")
-    content = ltsFile.readline()
-    lastTimeStamp = datetime.fromtimestamp(float(content))
+    ltsFile = open(LAST_URL_FILE, "r")
+    lastUrl = ltsFile.readline().strip()
     ltsFile.close()
 except Exception:
-    lastTimeStamp = datetime.fromtimestamp(0)
+    lastUrl = ""
 
 
 SCRIPT_START = '<script id="__NEXT_DATA__" type="application/json">'
@@ -208,7 +207,6 @@ class Agent:
         self.cfg = cfg
         self.name = self.cfg.get("name")
         self.url = None
-        self.foundNew = 0
 
     def BuildUrl(self, s):
         u = urlparse(s)
@@ -222,7 +220,7 @@ class Agent:
         return validUrl
 
     def Evaluate(self) -> list[Item]:
-        global lastTimeStamp
+        global lastUrl
         print("Evaluate " + self.name)
         res: list[Item] = []
         if self.cfg.name != "Agent":
@@ -276,17 +274,16 @@ class Agent:
 
         runs = RunHist()
         runs.Load()
-        self.foundNew = 0
 
         searchl = self.cfg.find_all("Search")
 
-        newlastTimeStamp = lastTimeStamp
+        newlastUrl = lastUrl
         for sea in searchl:
             searchName = sea.get("name", "noName")
             print("do search", searchName)
 
             for item in items:
-                if item.published < lastTimeStamp:
+                if item.url == lastUrl:
                     break
 
                 filters = sea.find_all("Filter")
@@ -295,20 +292,20 @@ class Agent:
                     if not f.evaluate(item):
                         break
                 else:
-                    if item.published > newlastTimeStamp:
-                        newlastTimeStamp = item.published
                     res.append(item)
-                    self.foundNew += 1
+                    if newlastUrl == lastUrl:
+                        newlastUrl = item.url
 
-            if newlastTimeStamp > lastTimeStamp:
-                lastTimeStamp = newlastTimeStamp
-                ltsFile = open("lastTimeStamp.txt", "w")
-                ltsFile.write(str(lastTimeStamp.timestamp()))
+            if newlastUrl != lastUrl:
+                lastUrl = newlastUrl
+                ltsFile = open(LAST_URL_FILE, "w")
+                ltsFile.write(lastUrl)
                 ltsFile.close()
 
         print(
             (str)(datetime.now()) + " Agent " + self.name + " res len=" + str(len(res))
         )
+        exit()
         return res
 
 
